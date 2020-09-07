@@ -49,5 +49,32 @@ def get_user_by_id(user_id: int):
 # Post user
 @app.post("/users")
 def post_user(user: User):
+    """
+    Insere um novo usuário no banco de dados
+    """
     user.id = db[-1].id + 1
     db.append(user)
+
+# Update user
+@app.put("/users/update")
+def update_user(user: User):
+    """
+    Atualiza as informações de um usuário já existente no banco de dados
+    """
+    for db_user in db:
+        if(user.id == db_user.id):
+            db[user.id - 1] = user
+            return { "Status": 200, "Message": "Success in update"}
+    return { "Status": 404, "Message": "User not found"}
+
+# Delete user
+@app.delete("/users/delete/{user_id}")
+def delete_user(user_id: int):
+    """
+    Deleta um usuário do banco de dados por meio do id
+    """
+    for user in db:
+        if(user.id == user_id):
+            del(db[user_id - 1])
+            return { "Status": 200, "Message": "Success in delete user"}
+    return { "Status": 404, "Message": "User not found"}
