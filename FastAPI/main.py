@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+import json
 
 app = FastAPI()
 
@@ -12,69 +13,86 @@ def root():
     return {"Hello":"World"}
 
 # Criando modelo de usuário
-class User(BaseModel):
+class Task(BaseModel):
     id: int
-    name: str
-    email: str
-    password: str
+    title: str
+    description: str
+    done: bool = False
 
 # Criando base de dados a partir do modelo de usuário
 db = [
-    User(id = 1, name = "Evandro", email = "evandro@email.com", password = "evandro123"),
-    User(id = 2, name = "Michel", email = "michel@email.com", password = "michel123"),
-    User(id = 3, name = "Rodrigo", email = "rodrigo@email.com", password = "rodrigo123"),
-    User(id = 4, name = "Abel", email = "abel@email.com", password = "abel123"),
-    User(id = 5, name = "Ester", email = "ester@email.com", password = "ester123")
+    Task(id = 0, title = "Louça", description = "Lava toda a louça da pia"),
+    Task(id = 1, title = "Pintura", description = "Pintar a parede da sala"),
+    Task(id = 2, title = "Lampada", description = "Trocar a lampada do quarto"),
+    Task(id = 3, title = "Tarefa", description = "Fazer toda a tarefa de casa"),
+    Task(id = 4, title = "Lavar roupa", description = "Lavar roupa das crianças")
 ]
 
-# Get users
-@app.get("/users")
-def get_users():
+# Get tasks
+@app.get("/tasks")
+def get_tasks():
     """
-    Pegar todos os usuários do banco de dados
+    Pegar todas as tarefas do banco de dados
     """
     return db
 
-# Get unique user
-@app.get("/users/{user_id}")
-def get_user_by_id(user_id: int):
+# Get unique task
+@app.get("/tasks/{task_id}")
+def get_task_by_id(task_id: int):
     """
-    Pegar um único usuário por meio de seu id
+    Pegar uma única tarefa por meio de seu id
     """
-    for user in db:
-        if(user.id == user_id):
-            return user
-    return { "Status": 404, "Message": "User not found"}
+    for task in db:
+        if(task.id == task_id):
+            return task
+    return { "Status": 404, "Message": "Task not found"}
 
-# Post user
-@app.post("/users")
-def post_user(user: User):
+# Post task
+@app.post("/tasks")
+def post_task(task_title: str, task_description: str):
     """
-    Insere um novo usuário no banco de dados
+    Insere uma nova tarefa no banco de dados
     """
-    user.id = db[-1].id + 1
-    db.append(user)
+    if len(db) > 0:
+        new_id = db[-1].id + 1
+    else:
+        new_id = 0
+    new_task = Task(id = new_id, title = task_title, description = task_description)
+    db.append(new_task)
+    return { "Status": 201, "Messege":"Success in insert new task"}
 
-# Update user
-@app.put("/users/update")
-def update_user(user: User):
+# Update task
+@app.put("/tasks/update")
+def update_task(task: Task):
     """
-    Atualiza as informações de um usuário já existente no banco de dados
+    Atualiza as informações de uma tarefa já existente no banco de dados
     """
-    for db_user in db:
-        if(user.id == db_user.id):
-            db[user.id - 1] = user
+    for db_task in db:
+        if(task.id == db_task.id):
+            db[task.id] = task
             return { "Status": 200, "Message": "Success in update"}
-    return { "Status": 404, "Message": "User not found"}
+    return { "Status": 204, "Message": "Task not found"}
 
-# Delete user
-@app.delete("/users/delete/{user_id}")
-def delete_user(user_id: int):
+# Complete task
+@app.put("/tasks/complete")
+def complete_task(task_id: int):
     """
-    Deleta um usuário do banco de dados por meio do id
+    Completa uma tarefa já existente no banco de dados mudando seu status. Caso ela já esteja completa, o status voltará a ser incompleta.
     """
-    for user in db:
-        if(user.id == user_id):
-            del(db[user_id - 1])
-            return { "Status": 200, "Message": "Success in delete user"}
-    return { "Status": 404, "Message": "User not found"}
+    for db_task in db:
+        if(task_id == db_task.id):
+            db[task_id].done = not db[task_id].done
+            return { "Status": 200, "Message": "Success in update"}
+    return { "Status": 204, "Message": "Task not found"}
+
+# Delete task
+@app.delete("/tasks/delete/{task_id}")
+def delete_task(task_id: int):
+    """
+    Deleta uma tarefa do banco de dados por meio do id
+    """
+    for task in db:
+        if(task.id == task_id):
+            del(db[task_id])
+            return { "Status": 200, "Message": "Success in delete task"}
+    return { "Status": 404, "Message": "Task not found"}
