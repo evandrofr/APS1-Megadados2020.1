@@ -8,7 +8,8 @@ app = FastAPI()
 @app.get("/")
 def root():
     """
-    Primeiros passos utilizando FastAPI. Hello World!
+    Primeiros passos utilizando FastAPI.\n
+    Hello World!
     """
     return {"Hello":"World"}
 
@@ -32,7 +33,8 @@ db = [
 @app.get("/tasks")
 def get_tasks():
     """
-    Pegar todas as tarefas do banco de dados
+    Pegar todas as tarefas do banco de dados.\n
+    Retorna uma lista de objetos json com as chaves e valores id: (int), title: (str), description: (str) e done: (bool)
     """
     return db
 
@@ -40,7 +42,8 @@ def get_tasks():
 @app.get("/tasks/{task_id}")
 def get_task_by_id(task_id: int):
     """
-    Pegar uma única tarefa por meio de seu id
+    Pegar uma única tarefa por meio de seu id.\n
+    Recebe um int que representa o id da task e retorna um objeto json com as chaves e valores id: (int), title: (str), description: (str) e done: (bool)
     """
     for task in db:
         if(task.id == task_id):
@@ -51,7 +54,7 @@ def get_task_by_id(task_id: int):
 @app.post("/tasks")
 def post_task(task_title: str, task_description: str):
     """
-    Insere uma nova tarefa no banco de dados
+    Insere uma nova tarefa no banco de dados.\n
     """
     if len(db) > 0:
         new_id = db[-1].id + 1
@@ -65,7 +68,8 @@ def post_task(task_title: str, task_description: str):
 @app.put("/tasks/update")
 def update_task(task: Task):
     """
-    Atualiza as informações de uma tarefa já existente no banco de dados
+    Atualiza as informações de uma tarefa já existente no banco de dados.\n
+    Recebe um objeto json com as seguintes chaves e valores id: (int), title: (str), description: (str) e done: (bool), insere o objeto no banco de dados na última posição da lista e retorna um objeto json com as chaves e valores Status: (int) e Message: (str).
     """
     for db_task in db:
         if(task.id == db_task.id):
@@ -77,7 +81,8 @@ def update_task(task: Task):
 @app.put("/tasks/complete")
 def complete_task(task_id: int):
     """
-    Completa uma tarefa já existente no banco de dados mudando seu status. Caso ela já esteja completa, o status voltará a ser incompleta.
+    Completa uma tarefa já existente no banco de dados mudando seu status. Caso ela já esteja completa, o status voltará a ser incompleta.\n
+    Recebe um int que representa o id da task, altera o valor booleano do campo done e retorna um objeto json com as chaves e valores Status: (int) e Message: (str).
     """
     for db_task in db:
         if(task_id == db_task.id):
@@ -89,7 +94,8 @@ def complete_task(task_id: int):
 @app.delete("/tasks/delete/{task_id}")
 def delete_task(task_id: int):
     """
-    Deleta uma tarefa do banco de dados por meio do id
+    Deleta uma tarefa do banco de dados por meio do id.\n
+    Recebe um int que representa o id da task, remove o objeto json que possui esse id da lista e retorna um objeto json com as chaves e valores Status: (int) e Message: (str).
     """
     for task in db:
         if(task.id == task_id):
